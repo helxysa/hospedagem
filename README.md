@@ -143,5 +143,3 @@ dotnet bin/Debug/net9.0/DesafioProjetoHospedagem.dll
 2. Sistema lança exceção com mensagem explicativa
 
 
-
-# hospedagem
