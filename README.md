@@ -1,21 +1,147 @@
-# DIO - Trilha .NET - Explorando a linguagem C#
-www.dio.me
+# Sistema de Hospedagem - Desafio .NET
 
-## Desafio de projeto
-Para este desafio, você precisará usar seus conhecimentos adquiridos no módulo de explorando a linguagem C#, da trilha .NET da DIO.
+## Visão Geral
 
-## Contexto
-Você foi contratado para construir um sistema de hospedagem, que será usado para realizar uma reserva em um hotel. Você precisará usar a classe Pessoa, que representa o hóspede, a classe Suíte, e a classe Reserva, que fará um relacionamento entre ambos.
+Sistema de gerenciamento de reservas hoteleiras desenvolvido em C# (.NET 9.0) como parte do desafio de projeto da trilha .NET da DIO. O sistema implementa um modelo de domínio robusto para gestão de hóspedes, suítes e reservas, com validações de negócio e cálculos automáticos de tarifas.
 
-O seu programa deverá cálcular corretamente os valores dos métodos da classe Reserva, que precisará trazer a quantidade de hóspedes e o valor da diária, concedendo um desconto de 10% para caso a reserva seja para um período maior que 10 dias.
+## Arquitetura
 
-## Regras e validações
-1. Não deve ser possível realizar uma reserva de uma suíte com capacidade menor do que a quantidade de hóspedes. Exemplo: Se é uma suíte capaz de hospedar 2 pessoas, então ao passar 3 hóspedes deverá retornar uma exception.
-2. O método ObterQuantidadeHospedes da classe Reserva deverá retornar a quantidade total de hóspedes, enquanto que o método CalcularValorDiaria deverá retornar o valor da diária (Dias reservados x valor da diária).
-3. Caso seja feita uma reserva igual ou maior que 10 dias, deverá ser concedido um desconto de 10% no valor da diária.
+### Modelo de Domínio
+
+O sistema é construído seguindo princípios de Domain-Driven Design (DDD) com três entidades principais:
+
+- **Pessoa**: Representa o hóspede com informações de identificação
+- **Suite**: Define as características da acomodação (tipo, capacidade, tarifa)
+- **Reserva**: Estabelece o relacionamento entre hóspedes e suítes com regras de negócio
+
+### Diagrama de Classes
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Pessoa    │    │    Suite    │    │   Reserva   │
+├─────────────┤    ├─────────────┤    ├─────────────┤
+│ Nome        │    │ TipoSuite   │    │ Hospedes    │
+│ Sobrenome   │    │ Capacidade  │    │ Suite       │
+│ NomeCompleto│    │ ValorDiaria │    │ DiasReservados│
+└─────────────┘    └─────────────┘    └─────────────┘
+```
+
+## Funcionalidades
+
+### Gestão de Hóspedes
+- Cadastro de pessoas com nome e sobrenome
+- Validação de dados obrigatórios
+- Geração automática de nome completo
+
+### Gestão de Suítes
+- Definição de tipos de acomodação
+- Configuração de capacidade máxima
+- Estabelecimento de tarifas diárias
+
+### Sistema de Reservas
+- Criação de reservas com validações
+- Verificação automática de capacidade
+- Cálculo inteligente de tarifas
+- Aplicação de descontos por volume
+
+## Regras de Negócio
+
+### Validações de Capacidade
+O sistema impede a criação de reservas que excedam a capacidade da suíte, lançando `InvalidOperationException` quando necessário.
+
+```csharp
+if (hospedes.Count > suite.Capacidade)
+{
+    throw new InvalidOperationException("Capacidade excedida");
+}
+```
+
+### Cálculo de Tarifas
+A tarifa total é calculada multiplicando o número de dias pela tarifa diária da suíte.
+
+```csharp
+decimal valor = DiasReservados * Suite.ValorDiaria;
+```
+
+### Política de Descontos
+Reservas com duração igual ou superior a 10 dias recebem desconto de 10%.
+
+```csharp
+if (DiasReservados >= 10)
+{
+    valor *= 0.9m; // 10% de desconto
+}
+```
+
+## Interface de Usuário
+
+O sistema apresenta uma interface de linha de comando (CLI) intuitiva com menu hierárquico:
+
+1. **Cadastrar Hóspede** - Inclusão de novos hóspedes
+2. **Cadastrar Suíte** - Configuração de acomodações
+3. **Criar Reserva** - Processo de reserva com validações
+4. **Listar Hóspedes** - Visualização de cadastros
+5. **Listar Suítes** - Consulta de acomodações
+6. **Listar Reservas** - Histórico de reservas
+
+## Tecnologias e Dependências
+
+- **Runtime**: .NET 9.0
+- **Linguagem**: C# 12.0
+- **Paradigma**: Programação Orientada a Objetos
+- **Padrões**: Domain-Driven Design, Command Pattern
+- **Validações**: Exception handling, input validation
+
+## Estrutura do Projeto
+
+```
+trilha-net-explorando-desafio/
+├── Models/
+│   ├── Pessoa.cs          # Entidade hóspede
+│   ├── Suite.cs           # Entidade suíte
+│   └── Reserva.cs         # Entidade reserva
+├── Program.cs              # Ponto de entrada e interface CLI
+├── DesafioProjetoHospedagem.csproj
+└── README.md
+```
+
+## Execução
+
+### Pré-requisitos
+- .NET 9.0 SDK ou superior
+- Sistema operacional: Windows, macOS ou Linux
+
+### Comandos de Execução
+```bash
 
 
-![Diagrama de classe estacionamento](diagrama_classe_hotel.png)
+# Compilar e executar
+dotnet run
 
-## Solução
-O código está pela metade, e você deverá dar continuidade obedecendo as regras descritas acima, para que no final, tenhamos um programa funcional. Procure pela palavra comentada "TODO" no código, em seguida, implemente conforme as regras acima.
+# Apenas compilar
+dotnet build
+
+# Executar arquivo compilado
+dotnet bin/Debug/net9.0/DesafioProjetoHospedagem.dll
+```
+
+## Casos de Uso
+
+### Cenário 1: Reserva Padrão
+1. Cadastrar hóspede "João Silva"
+2. Cadastrar suíte "Standard" (capacidade: 2, tarifa: R$ 100)
+3. Criar reserva para 5 dias
+4. Resultado: R$ 500,00 (sem desconto)
+
+### Cenário 2: Reserva com Desconto
+1. Utilizar hóspedes e suíte existentes
+2. Criar reserva para 12 dias
+3. Resultado: R$ 1.080,00 (R$ 1.200,00 - 10%)
+
+### Cenário 3: Validação de Capacidade
+1. Tentar reservar suíte para 2 pessoas com 3 hóspedes
+2. Sistema lança exceção com mensagem explicativa
+
+
+
+# hospedagem
